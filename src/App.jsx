@@ -20,7 +20,7 @@ function App() {
     setTicketStatus('')
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/diagnostics', {
+      const response = await axios.post('https://it-support-api-g0b4.onrender.com/api/diagnostics', {
         target: target
       })
       setResults(response.data)
@@ -33,7 +33,7 @@ function App() {
 
   const generateTicket = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/ticket', {
+      const response = await axios.post('https://it-support-api-g0b4.onrender.com/api/ticket', {
         user_id: "Agent_007",
         target: results.target,
         ping_data: results.results.ping,
