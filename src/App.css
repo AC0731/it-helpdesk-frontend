@@ -1,0 +1,116 @@
+.dashboard-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  color: #1e293b;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 1rem;
+}
+
+.icon-large { width: 32px; height: 32px; }
+.icon-small { width: 18px; height: 18px; }
+
+.panel {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.search-panel h2 { margin-bottom: 0.5rem; }
+.search-panel p { color: #64748b; margin-bottom: 1.5rem; }
+
+.search-form {
+  display: flex;
+  gap: 1rem;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.btn-primary, .btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary { background: #2563eb; color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+
+.btn-secondary { background: #10b981; color: white; }
+.btn-secondary:hover { background: #059669; }
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.results-header span { color: #2563eb; }
+
+/* The Terminal Look */
+.terminal-window {
+  background: #0f172a;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.terminal-header {
+  background: #1e293b;
+  color: #94a3b8;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.terminal-body {
+  padding: 1.5rem;
+  color: #22c55e;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.terminal-body h3 {
+  color: #38bdf8;
+  margin: 1.5rem 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.terminal-body h3:first-child { margin-top: 0; }
+pre { white-space: pre-wrap; word-wrap: break-word; }
+
+/* Alerts */
+.error-banner, .success-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+.error-banner { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.success-banner { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
