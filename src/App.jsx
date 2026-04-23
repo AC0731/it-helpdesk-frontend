@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { Activity, Server, AlertCircle, CheckCircle, Terminal } from 'lucide-react'
+import { Activity, Server, AlertCircle, CheckCircle, Terminal, Loader2 } from 'lucide-react'
 import './App.css'
 
 function App() {
@@ -39,7 +39,8 @@ function App() {
         ping_data: results.results.ping,
         traceroute_data: results.results.traceroute
       })
-      setTicketStatus(response.ticket_id)
+      // Fixed: response.data.ticket_id
+      setTicketStatus(response.data.ticket_id)
     } catch (err) {
       setTicketStatus('Error generating ticket.')
     }
@@ -48,15 +49,19 @@ function App() {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <Server className="icon-large" />
-        <h1>IT Support Diagnostic Portal</h1>
+        <div className="header-title">
+          <Server className="icon-large text-accent" />
+          <h1>IT Support Diagnostic Portal</h1>
+        </div>
+        <span className="system-status">System Online</span>
       </header>
 
       <main className="dashboard-main">
-        {/* Search Panel */}
-        <div className="panel search-panel">
-          <h2>Run Network Diagnostics</h2>
-          <p>Enter a domain or IP address to run automated Ping and Traceroute.</p>
+        <section className="panel search-panel">
+          <div className="panel-header">
+            <h2>Network Diagnostics</h2>
+            <p>Enter a domain or IP address to run automated Ping, Traceroute, and Port Scans.</p>
+          </div>
           
           <form onSubmit={runDiagnostics} className="search-form">
             <input 
@@ -67,47 +72,87 @@ function App() {
               className="search-input"
             />
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Running Tests...' : 'Execute Diagnostics'}
-              {!loading && <Activity className="icon-small" />}
+              {loading ? (
+                <>
+                  <Loader2 className="icon-small spinner" />
+                  Running Tests...
+                </>
+              ) : (
+                <>
+                  Execute Diagnostics
+                  <Activity className="icon-small" />
+                </>
+              )}
             </button>
           </form>
 
           {error && (
-            <div className="error-banner">
+            <div className="alert error-banner">
               <AlertCircle className="icon-small" /> {error}
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Results Panel */}
         {results && (
-          <div className="panel results-panel">
+          <section className="panel results-panel fade-in">
             <div className="results-header">
-              <h2>Diagnostic Results for: <span>{results.target}</span></h2>
+              <h2>Target: <span className="text-accent">{results.target}</span></h2>
               <button onClick={generateTicket} className="btn-secondary">
                 Generate Support Ticket
               </button>
             </div>
 
             {ticketStatus && (
-              <div className="success-banner">
-                <CheckCircle className="icon-small" /> Ticket created successfully: {ticketStatus}
+              <div className="alert success-banner fade-in">
+                <CheckCircle className="icon-small" /> Ticket Created: {ticketStatus}
+              </div>
+            )}
+
+            {/* --- NEW PORT SCANNER UI --- */}
+            {results.results.ports && (
+              <div className="port-scanner-section" style={{ marginBottom: '1.5rem', background: 'var(--bg-main)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                <h3 style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                  Open Ports Check
+                </h3>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {Object.entries(results.results.ports).map(([port, status]) => (
+                    <span 
+                      key={port} 
+                      style={{
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '999px',
+                        fontSize: '0.875rem',
+                        fontWeight: 'bold',
+                        backgroundColor: status === 'Open' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        color: status === 'Open' ? 'var(--btn-success)' : '#ef4444',
+                        border: `1px solid ${status === 'Open' ? 'var(--btn-success)' : '#ef4444'}`
+                      }}
+                    >
+                      Port {port}: {status}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
 
             <div className="terminal-window">
               <div className="terminal-header">
-                <Terminal className="icon-small" /> Command Line Output
+                <div className="terminal-dots">
+                  <span className="dot dot-red"></span>
+                  <span className="dot dot-yellow"></span>
+                  <span className="dot dot-green"></span>
+                </div>
+                <span><Terminal className="icon-small" /> console</span>
               </div>
               <div className="terminal-body">
-                <h3>--- PING RESULTS ---</h3>
+                <h3 className="terminal-title">--- PING RESULTS ---</h3>
                 <pre>{results.results.ping}</pre>
                 
-                <h3>--- TRACEROUTE RESULTS ---</h3>
+                <h3 className="terminal-title">--- TRACEROUTE RESULTS ---</h3>
                 <pre>{results.results.traceroute}</pre>
               </div>
             </div>
-          </div>
+          </section>
         )}
       </main>
     </div>
