@@ -20,9 +20,8 @@ function App() {
     setTicketStatus('')
 
     try {
-      const response = await axios.post('https://it-support-api-g0b4.onrender.com/api/diagnostics', {
-        target: target
-      })
+const response = await axios.post('https://www.google.com/search?q=https://it-support-api-g0b4.onrender.com/api/diagnostics', { target: target })        
+      
       setResults(response.data)
     } catch (err) {
       setError('Failed to connect to the backend server. Is your Python API running?')
@@ -33,8 +32,7 @@ function App() {
 
   const generateTicket = async () => {
     try {
-      const response = await axios.post('https://it-support-api-g0b4.onrender.com/api/ticket', {
-        user_id: "Agent_007",
+const response = await axios.post('https://it-support-api-g0b4.onrender.com/api/ticket', {        user_id: "Agent_007",
         target: results.target,
         ping_data: results.results.ping,
         traceroute_data: results.results.traceroute
