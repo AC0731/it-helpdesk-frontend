@@ -33,7 +33,7 @@ The frontend connects to a FastAPI backend that performs diagnostic checks and r
 
 ## Live Demo
 
-Frontend: Deployment link coming soon  
+Frontend: https://it-support-diagnostic-portal.vercel.app
 Backend API: https://it-support-api-g0b4.onrender.com  
 API Docs: https://it-support-api-g0b4.onrender.com/docs
 
