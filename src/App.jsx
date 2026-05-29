@@ -144,10 +144,10 @@ function App() {
                 <span><Terminal className="icon-small" /> console</span>
               </div>
               <div className="terminal-body">
-                <h3 className="terminal-title">--- PING RESULTS ---</h3>
+                <h3 className="terminal-title">--- REACHABILITY CHECK ---</h3>
                 <pre>{results.results.ping}</pre>
                 
-                <h3 className="terminal-title">--- TRACEROUTE RESULTS ---</h3>
+                <h3 className="terminal-title">--- ROUTE DIAGNOSTIC STATUS ---</h3>
                 <pre>{results.results.traceroute}</pre>
               </div>
             </div>
