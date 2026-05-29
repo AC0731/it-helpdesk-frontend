@@ -31,6 +31,20 @@ The frontend connects to a FastAPI backend that performs diagnostic checks and r
 - Professional dark-mode interface
 - Deployment-ready API configuration with environment variables
 
+## Screenshots
+
+### Diagnostic Form
+
+![Diagnostic Form](./screenshots/diagnostic-form.png)
+
+### Diagnostic Results
+
+![Diagnostic Results](./screenshots/diagnostic-results.png)
+
+### Ticket Created
+
+![Ticket Created](./screenshots/ticket-created.png)
+
 ## Live Demo
 
 Frontend: https://it-support-diagnostic-portal.vercel.app
