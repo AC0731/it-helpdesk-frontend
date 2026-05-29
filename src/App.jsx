@@ -3,6 +3,8 @@ import axios from 'axios'
 import { Activity, Server, AlertCircle, CheckCircle, Terminal, Loader2 } from 'lucide-react'
 import './App.css'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://it-support-api-g0b4.onrender.com'
+
 function App() {
   const [target, setTarget] = useState('')
   const [results, setResults] = useState(null)
@@ -12,16 +14,22 @@ function App() {
 
   const runDiagnostics = async (e) => {
     e.preventDefault()
-    if (!target) return
-    
+
+    if (!target.trim()) {
+      setError('Please enter a domain or IP address.')
+      return
+    }
+
     setLoading(true)
     setError('')
     setResults(null)
     setTicketStatus('')
 
     try {
-const response = await axios.post('https://www.google.com/search?q=https://it-support-api-g0b4.onrender.com/api/diagnostics', { target: target })        
-      
+      const response = await axios.post(`${API_BASE_URL}/api/diagnostics`, {
+        target: target.trim()
+      })
+
       setResults(response.data)
     } catch (err) {
       setError('Failed to connect to the backend server. Is your Python API running?')
@@ -32,17 +40,19 @@ const response = await axios.post('https://www.google.com/search?q=https://it-su
 
   const generateTicket = async () => {
     try {
-const response = await axios.post('https://it-support-api-g0b4.onrender.com/api/ticket', {        user_id: "Agent_007",
+      const response = await axios.post(`${API_BASE_URL}/api/ticket`, {
+        user_id: 'Demo Agent',
         target: results.target,
         ping_data: results.results.ping,
         traceroute_data: results.results.traceroute
       })
-      // Fixed: response.data.ticket_id
+
       setTicketStatus(response.data.ticket_id)
     } catch (err) {
       setTicketStatus('Error generating ticket.')
     }
   }
+
 
   return (
     <div className="dashboard-container">
@@ -106,25 +116,16 @@ const response = await axios.post('https://it-support-api-g0b4.onrender.com/api/
               </div>
             )}
 
-            {/* --- NEW PORT SCANNER UI --- */}
+            {/* --- PORT SCANNER UI --- */}
             {results.results.ports && (
-              <div className="port-scanner-section" style={{ marginBottom: '1.5rem', background: 'var(--bg-main)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                <h3 style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                  Open Ports Check
-                </h3>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <div className="port-scanner-section">
+                <h3 className="section-label">Open Ports Check</h3>
+
+                <div className="port-list">
                   {Object.entries(results.results.ports).map(([port, status]) => (
-                    <span 
-                      key={port} 
-                      style={{
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '999px',
-                        fontSize: '0.875rem',
-                        fontWeight: 'bold',
-                        backgroundColor: status === 'Open' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        color: status === 'Open' ? 'var(--btn-success)' : '#ef4444',
-                        border: `1px solid ${status === 'Open' ? 'var(--btn-success)' : '#ef4444'}`
-                      }}
+                    <span
+                      key={port}
+                      className={`port-badge ${status === 'Open' ? 'port-open' : 'port-closed'}`}
                     >
                       Port {port}: {status}
                     </span>
