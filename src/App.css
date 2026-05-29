@@ -308,15 +308,44 @@ pre { white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; }
 .terminal-body h3:first-child { margin-top: 0; }
 pre { white-space: pre-wrap; word-wrap: break-word; }
 
-/* Alerts */
-.error-banner, .success-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+/* Port Scanner */
+.port-scanner-section {
+  margin-bottom: 1.5rem;
+  background: var(--bg-main);
   padding: 1rem;
-  border-radius: 6px;
-  margin-top: 1rem;
-  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid var(--border);
 }
-.error-banner { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-.success-banner { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+.section-label {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.port-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.port-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.port-open {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--btn-success);
+  border: 1px solid var(--btn-success);
+}
+
+.port-closed {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
