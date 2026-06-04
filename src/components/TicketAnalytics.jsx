@@ -1,46 +1,25 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AlertTriangle, BarChart3, CheckCircle, Clock, Inbox, ListChecks } from 'lucide-react'
 
 import { getApiErrorMessage } from '../api/client'
-import { listSupportTickets } from '../api/tickets'
+import { getTicketAnalytics } from '../api/tickets'
 import AlertBanner from './AlertBanner'
 
-function buildAnalytics(tickets) {
-  return tickets.reduce(
-    (totals, ticket) => {
-      totals.total += 1
-
-      if (ticket.status === 'open') {
-        totals.open += 1
-      }
-
-      if (ticket.status === 'in_progress') {
-        totals.inProgress += 1
-      }
-
-      if (ticket.status === 'resolved') {
-        totals.resolved += 1
-      }
-
-      if (ticket.status === 'closed') {
-        totals.closed += 1
-      }
-
-      if (ticket.priority === 'high' || ticket.priority === 'urgent') {
-        totals.highPriority += 1
-      }
-
-      return totals
-    },
-    {
-      total: 0,
-      open: 0,
-      inProgress: 0,
-      resolved: 0,
-      closed: 0,
-      highPriority: 0
-    }
-  )
+const emptyAnalytics = {
+  total: 0,
+  by_status: {
+    open: 0,
+    in_progress: 0,
+    resolved: 0,
+    closed: 0
+  },
+  by_priority: {
+    low: 0,
+    medium: 0,
+    high: 0,
+    urgent: 0
+  },
+  high_priority_total: 0
 }
 
 function AnalyticsCard({ icon: Icon, label, value, helper }) {
@@ -60,26 +39,33 @@ function AnalyticsCard({ icon: Icon, label, value, helper }) {
 }
 
 export default function TicketAnalytics({ refreshKey }) {
-  const [tickets, setTickets] = useState([])
+  const [analytics, setAnalytics] = useState(emptyAnalytics)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-
-  const analytics = useMemo(() => buildAnalytics(tickets), [tickets])
 
   useEffect(() => {
     let isActive = true
 
     async function fetchAnalytics() {
       try {
-        const response = await listSupportTickets({
-          limit: 100
-        })
+        const response = await getTicketAnalytics()
 
         if (!isActive) {
           return
         }
 
-        setTickets(response.tickets || [])
+        setAnalytics({
+          ...emptyAnalytics,
+          ...response,
+          by_status: {
+            ...emptyAnalytics.by_status,
+            ...(response.by_status || {})
+          },
+          by_priority: {
+            ...emptyAnalytics.by_priority,
+            ...(response.by_priority || {})
+          }
+        })
         setError('')
       } catch (err) {
         if (!isActive) {
@@ -130,35 +116,35 @@ export default function TicketAnalytics({ refreshKey }) {
           <AnalyticsCard
             icon={Clock}
             label="Open"
-            value={analytics.open}
+            value={analytics.by_status.open}
             helper="Waiting for triage"
           />
 
           <AnalyticsCard
             icon={ListChecks}
             label="In Progress"
-            value={analytics.inProgress}
+            value={analytics.by_status.in_progress}
             helper="Actively being handled"
           />
 
           <AnalyticsCard
             icon={CheckCircle}
             label="Resolved"
-            value={analytics.resolved}
+            value={analytics.by_status.resolved}
             helper="Completed tickets"
           />
 
           <AnalyticsCard
             icon={BarChart3}
             label="Closed"
-            value={analytics.closed}
+            value={analytics.by_status.closed}
             helper="Archived workflow"
           />
 
           <AnalyticsCard
             icon={AlertTriangle}
             label="High Priority"
-            value={analytics.highPriority}
+            value={analytics.high_priority_total}
             helper="High or urgent tickets"
           />
         </div>

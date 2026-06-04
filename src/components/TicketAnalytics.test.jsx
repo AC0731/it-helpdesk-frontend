@@ -1,55 +1,48 @@
 import { render, screen, waitFor } from '@testing-library/react'
 
 import TicketAnalytics from './TicketAnalytics'
-import { listSupportTickets } from '../api/tickets'
+import { getTicketAnalytics } from '../api/tickets'
 
 vi.mock('../api/tickets', () => ({
-  listSupportTickets: vi.fn()
+  getTicketAnalytics: vi.fn()
 }))
 
 vi.mock('../api/client', () => ({
   getApiErrorMessage: () => 'API error'
 }))
 
-const tickets = [
-  {
-    ticket_id: 'TKT-1',
-    status: 'open',
-    priority: 'medium'
+const analyticsResponse = {
+  total: 4,
+  by_status: {
+    open: 1,
+    in_progress: 1,
+    resolved: 1,
+    closed: 1
   },
-  {
-    ticket_id: 'TKT-2',
-    status: 'in_progress',
-    priority: 'high'
+  by_priority: {
+    low: 1,
+    medium: 1,
+    high: 1,
+    urgent: 1
   },
-  {
-    ticket_id: 'TKT-3',
-    status: 'resolved',
-    priority: 'urgent'
-  },
-  {
-    ticket_id: 'TKT-4',
-    status: 'closed',
-    priority: 'low'
-  }
-]
+  high_priority_total: 2
+}
 
 describe('TicketAnalytics', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('renders ticket analytics from the backend ticket list', async () => {
-    listSupportTickets.mockResolvedValue({
-      count: tickets.length,
-      tickets
-    })
+  it('renders ticket analytics from the backend analytics endpoint', async () => {
+    getTicketAnalytics.mockResolvedValue(analyticsResponse)
 
     render(<TicketAnalytics refreshKey={0} />)
 
     await waitFor(() => {
       expect(screen.getByText('Ticket Analytics')).toBeInTheDocument()
     })
+
+    expect(getTicketAnalytics).toHaveBeenCalledOnce()
 
     expect(screen.getByText('Total Tickets')).toBeInTheDocument()
     expect(screen.getByText('Open')).toBeInTheDocument()
@@ -64,7 +57,7 @@ describe('TicketAnalytics', () => {
   })
 
   it('shows an API error if analytics cannot be loaded', async () => {
-    listSupportTickets.mockRejectedValue(new Error('Failed'))
+    getTicketAnalytics.mockRejectedValue(new Error('Failed'))
 
     render(<TicketAnalytics refreshKey={0} />)
 
