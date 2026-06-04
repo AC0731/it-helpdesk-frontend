@@ -2,11 +2,20 @@ import AlertBanner from './AlertBanner'
 import PortScannerResults from './PortScannerResults'
 import TerminalOutput from './TerminalOutput'
 
+const PRIORITY_OPTIONS = [
+  { label: 'Low', value: 'low' },
+  { label: 'Medium', value: 'medium' },
+  { label: 'High', value: 'high' },
+  { label: 'Urgent', value: 'urgent' }
+]
+
 export default function DiagnosticsResults({
   results,
   ticketStatus,
   ticketError,
   ticketLoading,
+  ticketPriority,
+  onTicketPriorityChange,
   onGenerateTicket
 }) {
   if (!results) {
@@ -20,13 +29,33 @@ export default function DiagnosticsResults({
           Target: <span className="text-accent">{results.target}</span>
         </h2>
 
-        <button
-          onClick={onGenerateTicket}
-          className="btn-secondary"
-          disabled={ticketLoading}
-        >
-          {ticketLoading ? 'Creating Ticket...' : 'Generate Support Ticket'}
-        </button>
+        <div className="ticket-create-controls">
+          <label className="priority-select-label" htmlFor="ticket-priority">
+            Ticket priority
+          </label>
+
+          <select
+            id="ticket-priority"
+            className="priority-select"
+            value={ticketPriority}
+            onChange={(event) => onTicketPriorityChange(event.target.value)}
+            disabled={ticketLoading}
+          >
+            {PRIORITY_OPTIONS.map((priority) => (
+              <option key={priority.value} value={priority.value}>
+                {priority.label}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={onGenerateTicket}
+            className="btn-secondary"
+            disabled={ticketLoading}
+          >
+            {ticketLoading ? 'Creating Ticket...' : 'Generate Support Ticket'}
+          </button>
+        </div>
       </div>
 
       <AlertBanner

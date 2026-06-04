@@ -16,17 +16,26 @@ const mockResults = {
   }
 }
 
+function renderDiagnosticsResults(overrides = {}) {
+  const props = {
+    results: mockResults,
+    ticketStatus: '',
+    ticketError: '',
+    ticketLoading: false,
+    ticketPriority: 'medium',
+    onTicketPriorityChange: () => {},
+    onGenerateTicket: () => {},
+    ...overrides
+  }
+
+  render(<DiagnosticsResults {...props} />)
+
+  return props
+}
+
 describe('DiagnosticsResults', () => {
   it('renders diagnostic output and port results', () => {
-    render(
-      <DiagnosticsResults
-        results={mockResults}
-        ticketStatus=""
-        ticketError=""
-        ticketLoading={false}
-        onGenerateTicket={() => {}}
-      />
-    )
+    renderDiagnosticsResults()
 
     expect(screen.getByText('google.com')).toBeInTheDocument()
     expect(screen.getByText('Port 80: Open')).toBeInTheDocument()
@@ -39,31 +48,32 @@ describe('DiagnosticsResults', () => {
     const user = userEvent.setup()
     const handleGenerateTicket = vi.fn()
 
-    render(
-      <DiagnosticsResults
-        results={mockResults}
-        ticketStatus=""
-        ticketError=""
-        ticketLoading={false}
-        onGenerateTicket={handleGenerateTicket}
-      />
-    )
+    renderDiagnosticsResults({
+      onGenerateTicket: handleGenerateTicket
+    })
 
     await user.click(screen.getByRole('button', { name: /generate support ticket/i }))
 
     expect(handleGenerateTicket).toHaveBeenCalledOnce()
   })
 
+  it('allows ticket priority to be changed before creation', async () => {
+    const user = userEvent.setup()
+    const handlePriorityChange = vi.fn()
+
+    renderDiagnosticsResults({
+      onTicketPriorityChange: handlePriorityChange
+    })
+
+    await user.selectOptions(screen.getByLabelText(/ticket priority/i), 'urgent')
+
+    expect(handlePriorityChange).toHaveBeenCalledWith('urgent')
+  })
+
   it('shows ticket success message', () => {
-    render(
-      <DiagnosticsResults
-        results={mockResults}
-        ticketStatus="TKT-123"
-        ticketError=""
-        ticketLoading={false}
-        onGenerateTicket={() => {}}
-      />
-    )
+    renderDiagnosticsResults({
+      ticketStatus: 'TKT-123'
+    })
 
     expect(screen.getByText('Ticket Created: TKT-123')).toBeInTheDocument()
   })
