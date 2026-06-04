@@ -2,9 +2,10 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import TicketDashboard from './TicketDashboard'
-import { listSupportTickets, updateSupportTicketStatus } from '../api/tickets'
+import { getSupportTicket, listSupportTickets, updateSupportTicketStatus } from '../api/tickets'
 
 vi.mock('../api/tickets', () => ({
+  getSupportTicket: vi.fn(),
   listSupportTickets: vi.fn(),
   updateSupportTicketStatus: vi.fn()
 }))
@@ -60,6 +61,32 @@ describe('TicketDashboard', () => {
     await waitFor(() => {
       expect(screen.getByText('No tickets found')).toBeInTheDocument()
     })
+  })
+
+  it('opens the ticket detail modal', async () => {
+    const user = userEvent.setup()
+
+    listSupportTickets.mockResolvedValue({
+      count: 1,
+      tickets: [mockTicket]
+    })
+
+    getSupportTicket.mockResolvedValue(mockTicket)
+
+    render(<TicketDashboard refreshKey={0} />)
+
+    await waitFor(() => {
+      expect(screen.getByText('TKT-123')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /view details/i }))
+
+    await waitFor(() => {
+      expect(getSupportTicket).toHaveBeenCalledWith('TKT-123')
+    })
+
+    expect(screen.getByRole('dialog', { name: /full ticket details/i })).toBeInTheDocument()
+    expect(screen.getByText('Ping OK')).toBeInTheDocument()
   })
 
   it('updates ticket status from the dashboard', async () => {
