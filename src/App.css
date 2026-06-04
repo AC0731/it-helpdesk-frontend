@@ -359,3 +359,8 @@ pre {
     width: 100%;
   }
 }
+.btn-secondary:disabled {
+  background: var(--border);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
