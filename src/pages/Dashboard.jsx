@@ -6,6 +6,7 @@ import { createSupportTicket } from '../api/tickets'
 import DashboardHeader from '../components/DashboardHeader'
 import DiagnosticsForm from '../components/DiagnosticsForm'
 import DiagnosticsResults from '../components/DiagnosticsResults'
+import TicketAnalytics from '../components/TicketAnalytics'
 import TicketDashboard from '../components/TicketDashboard'
 
 export default function Dashboard() {
@@ -83,6 +84,8 @@ export default function Dashboard() {
             onTargetChange={setTarget}
             onSubmit={runDiagnostics}
           />
+
+          <TicketAnalytics refreshKey={ticketRefreshKey} />
 
           <TicketDashboard refreshKey={ticketRefreshKey} />
         </div>
