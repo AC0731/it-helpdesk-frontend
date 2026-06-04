@@ -28,6 +28,12 @@ export async function listSupportTickets({ status = '', limit = 50 } = {}) {
   return response.data
 }
 
+export async function getTicketAnalytics() {
+  const response = await apiClient.get('/api/tickets/analytics')
+
+  return response.data
+}
+
 export async function updateSupportTicketStatus(ticketId, status) {
   const response = await apiClient.patch(`/api/tickets/${ticketId}`, {
     status
