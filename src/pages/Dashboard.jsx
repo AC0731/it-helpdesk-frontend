@@ -6,6 +6,7 @@ import { createSupportTicket } from '../api/tickets'
 import DashboardHeader from '../components/DashboardHeader'
 import DiagnosticsForm from '../components/DiagnosticsForm'
 import DiagnosticsResults from '../components/DiagnosticsResults'
+import TicketDashboard from '../components/TicketDashboard'
 
 export default function Dashboard() {
   const [target, setTarget] = useState('')
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [ticketStatus, setTicketStatus] = useState('')
   const [ticketError, setTicketError] = useState('')
   const [ticketLoading, setTicketLoading] = useState(false)
+  const [ticketRefreshKey, setTicketRefreshKey] = useState(0)
 
   async function runDiagnostics(event) {
     event.preventDefault()
@@ -60,6 +62,7 @@ export default function Dashboard() {
       })
 
       setTicketStatus(ticket.ticket_id)
+      setTicketRefreshKey((currentKey) => currentKey + 1)
     } catch (err) {
       setTicketError(getApiErrorMessage(err))
     } finally {
@@ -72,13 +75,17 @@ export default function Dashboard() {
       <DashboardHeader />
 
       <main className="dashboard-main">
-        <DiagnosticsForm
-          target={target}
-          error={error}
-          loading={loading}
-          onTargetChange={setTarget}
-          onSubmit={runDiagnostics}
-        />
+        <div className="dashboard-sidebar">
+          <DiagnosticsForm
+            target={target}
+            error={error}
+            loading={loading}
+            onTargetChange={setTarget}
+            onSubmit={runDiagnostics}
+          />
+
+          <TicketDashboard refreshKey={ticketRefreshKey} />
+        </div>
 
         <DiagnosticsResults
           results={results}
