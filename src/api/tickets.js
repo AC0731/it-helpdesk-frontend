@@ -11,3 +11,27 @@ export async function createSupportTicket({ userId, target, pingData, traceroute
 
   return response.data
 }
+
+export async function listSupportTickets({ status = '', limit = 50 } = {}) {
+  const params = {
+    limit
+  }
+
+  if (status) {
+    params.status = status
+  }
+
+  const response = await apiClient.get('/api/tickets', {
+    params
+  })
+
+  return response.data
+}
+
+export async function updateSupportTicketStatus(ticketId, status) {
+  const response = await apiClient.patch(`/api/tickets/${ticketId}`, {
+    status
+  })
+
+  return response.data
+}
