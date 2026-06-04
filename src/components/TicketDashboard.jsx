@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { RefreshCw, Ticket } from 'lucide-react'
+import { Eye, RefreshCw, Ticket } from 'lucide-react'
 
 import { getApiErrorMessage } from '../api/client'
-import { listSupportTickets, updateSupportTicketStatus } from '../api/tickets'
+import { getSupportTicket, listSupportTickets, updateSupportTicketStatus } from '../api/tickets'
 import AlertBanner from './AlertBanner'
 import StatusBadge from './StatusBadge'
+import TicketDetailModal from './TicketDetailModal'
 
 const STATUS_FILTERS = [
   { label: 'All', value: '' },
@@ -37,6 +38,9 @@ export default function TicketDashboard({ refreshKey }) {
   const [loading, setLoading] = useState(true)
   const [reloadKey, setReloadKey] = useState(0)
   const [updatingTicketId, setUpdatingTicketId] = useState('')
+  const [selectedTicket, setSelectedTicket] = useState(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState('')
   const [error, setError] = useState('')
 
   function refreshTickets() {
@@ -47,6 +51,27 @@ export default function TicketDashboard({ refreshKey }) {
   function handleFilterChange(event) {
     setLoading(true)
     setStatusFilter(event.target.value)
+  }
+
+  function closeTicketDetails() {
+    setSelectedTicket(null)
+    setDetailError('')
+    setDetailLoading(false)
+  }
+
+  async function handleOpenTicketDetails(ticketId) {
+    setSelectedTicket(null)
+    setDetailError('')
+    setDetailLoading(true)
+
+    try {
+      const ticket = await getSupportTicket(ticketId)
+      setSelectedTicket(ticket)
+    } catch (err) {
+      setDetailError(getApiErrorMessage(err))
+    } finally {
+      setDetailLoading(false)
+    }
   }
 
   async function handleStatusUpdate(ticketId, status) {
@@ -175,6 +200,15 @@ export default function TicketDashboard({ refreshKey }) {
               </div>
 
               <div className="ticket-actions">
+                <button
+                  type="button"
+                  className="btn-mini"
+                  onClick={() => handleOpenTicketDetails(ticket.ticket_id)}
+                >
+                  <Eye className="icon-small" />
+                  View Details
+                </button>
+
                 {NEXT_STATUS_OPTIONS.map((option) => (
                   <button
                     key={option.value}
@@ -194,6 +228,13 @@ export default function TicketDashboard({ refreshKey }) {
           ))}
         </div>
       )}
+
+      <TicketDetailModal
+        ticket={selectedTicket}
+        loading={detailLoading}
+        error={detailError}
+        onClose={closeTicketDetails}
+      />
     </section>
   )
 }
