@@ -1,4 +1,4 @@
-# IT Support Diagnostic Portal â€” Frontend
+# IT Support Diagnostic Portal - Frontend
 
 A production-minded React + Vite frontend for an IT support operations dashboard.
 
@@ -214,9 +214,9 @@ Some deployed server environments do not provide system-level `ping` or `tracero
 
 When those commands are unavailable, the backend returns clean fallback messages instead of raw server errors. The app can still display DNS/reachability information, TCP checks, port scan results, and support ticket workflows.
 
-## Current Status
+## Roadmap
 
-Completed:
+Completed foundation:
 
 - Frontend diagnostic dashboard
 - Backend API integration
@@ -227,7 +227,7 @@ Completed:
 - Frontend CI workflow
 - Vercel deployment setup
 
-Planned improvements:
+Next improvements:
 
 - Authentication
 - Role-based ticket assignment
