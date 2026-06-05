@@ -1,4 +1,4 @@
-import { BrainCircuit, Sparkles } from 'lucide-react'
+import { BrainCircuit, Save, Sparkles } from 'lucide-react'
 
 import AlertBanner from './AlertBanner'
 
@@ -17,7 +17,11 @@ export default function AIInsightPanel({
   insight,
   error,
   loading,
-  onGenerateInsight
+  saving = false,
+  saveStatus = '',
+  saveError = '',
+  onGenerateInsight,
+  onSaveInsight = () => {}
 }) {
   return (
     <section className="ai-insight-panel">
@@ -33,18 +37,35 @@ export default function AIInsightPanel({
           </p>
         </div>
 
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={onGenerateInsight}
-          disabled={loading}
-        >
-          <Sparkles className="icon-small" />
-          {loading ? 'Generating...' : 'Generate AI Insight'}
-        </button>
+        <div className="ai-action-row">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={onGenerateInsight}
+            disabled={loading}
+          >
+            <Sparkles className="icon-small" />
+            {loading ? 'Generating...' : 'Generate AI Insight'}
+          </button>
+
+          <button
+            type="button"
+            className="btn-outline"
+            onClick={onSaveInsight}
+            disabled={!insight || saving}
+          >
+            <Save className="icon-small" />
+            {saving ? 'Saving...' : 'Save Insight'}
+          </button>
+        </div>
       </div>
 
       <AlertBanner message={error} />
+      <AlertBanner message={saveError} />
+      <AlertBanner
+        message={saveStatus ? `Saved AI Insight: ${saveStatus}` : ''}
+        type="success"
+      />
 
       {insight ? (
         <div className="ai-insight-content">

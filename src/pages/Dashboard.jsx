@@ -1,12 +1,13 @@
 import { useState } from 'react'
 
-import { generateAiInsight } from '../api/ai'
+import { generateAiInsight, saveAiInsight } from '../api/ai'
 import { executeDiagnostics } from '../api/diagnostics'
 import { getApiErrorMessage } from '../api/client'
 import { createSupportTicket } from '../api/tickets'
 import DashboardHeader from '../components/DashboardHeader'
 import DiagnosticsForm from '../components/DiagnosticsForm'
 import DiagnosticsResults from '../components/DiagnosticsResults'
+import SavedAIInsightsPanel from '../components/SavedAIInsightsPanel'
 import TicketAnalytics from '../components/TicketAnalytics'
 import TicketDashboard from '../components/TicketDashboard'
 
@@ -23,6 +24,10 @@ export default function Dashboard() {
   const [aiInsight, setAiInsight] = useState(null)
   const [aiError, setAiError] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
+  const [aiSaving, setAiSaving] = useState(false)
+  const [aiSaveStatus, setAiSaveStatus] = useState('')
+  const [aiSaveError, setAiSaveError] = useState('')
+  const [aiHistoryRefreshKey, setAiHistoryRefreshKey] = useState(0)
 
   async function runDiagnostics(event) {
     event.preventDefault()
@@ -41,6 +46,8 @@ export default function Dashboard() {
     setTicketError('')
     setAiInsight(null)
     setAiError('')
+    setAiSaveStatus('')
+    setAiSaveError('')
 
     try {
       const diagnosticResults = await executeDiagnostics(normalizedTarget)
@@ -86,6 +93,8 @@ export default function Dashboard() {
 
     setAiLoading(true)
     setAiError('')
+    setAiSaveStatus('')
+    setAiSaveError('')
 
     try {
       const response = await generateAiInsight({
@@ -100,6 +109,32 @@ export default function Dashboard() {
       setAiError(getApiErrorMessage(err))
     } finally {
       setAiLoading(false)
+    }
+  }
+
+  async function saveInsight() {
+    if (!results || !aiInsight) {
+      return
+    }
+
+    setAiSaving(true)
+    setAiSaveStatus('')
+    setAiSaveError('')
+
+    try {
+      const response = await saveAiInsight({
+        target: results.target,
+        pingData: results.results.ping,
+        tracerouteData: results.results.traceroute,
+        ports: results.results.ports
+      })
+
+      setAiSaveStatus(`#${response.insight.id}`)
+      setAiHistoryRefreshKey((currentKey) => currentKey + 1)
+    } catch (err) {
+      setAiSaveError(getApiErrorMessage(err))
+    } finally {
+      setAiSaving(false)
     }
   }
 
@@ -119,6 +154,8 @@ export default function Dashboard() {
 
           <TicketAnalytics refreshKey={ticketRefreshKey} />
 
+          <SavedAIInsightsPanel refreshKey={aiHistoryRefreshKey} />
+
           <TicketDashboard refreshKey={ticketRefreshKey} />
         </div>
 
@@ -131,9 +168,13 @@ export default function Dashboard() {
           aiInsight={aiInsight}
           aiError={aiError}
           aiLoading={aiLoading}
+          aiSaving={aiSaving}
+          aiSaveStatus={aiSaveStatus}
+          aiSaveError={aiSaveError}
           onTicketPriorityChange={setTicketPriority}
           onGenerateTicket={generateTicket}
           onGenerateAiInsight={generateInsight}
+          onSaveAiInsight={saveInsight}
         />
       </main>
     </div>

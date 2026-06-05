@@ -51,6 +51,26 @@ describe('AIInsightPanel', () => {
     expect(handleGenerateInsight).toHaveBeenCalledOnce()
   })
 
+  it('calls the save insight handler', async () => {
+    const user = userEvent.setup()
+    const handleSaveInsight = vi.fn()
+
+    render(
+      <AIInsightPanel
+        insight={insight}
+        error=""
+        loading={false}
+        saving={false}
+        onGenerateInsight={() => {}}
+        onSaveInsight={handleSaveInsight}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /save insight/i }))
+
+    expect(handleSaveInsight).toHaveBeenCalledOnce()
+  })
+
   it('renders an AI insight result', () => {
     render(
       <AIInsightPanel
@@ -66,6 +86,20 @@ describe('AIInsightPanel', () => {
     expect(screen.getByText('Diagnostics were reviewed for google.com.')).toBeInTheDocument()
     expect(screen.getByText('The target appears reachable.')).toBeInTheDocument()
     expect(screen.getByText('Review open ports.')).toBeInTheDocument()
+  })
+
+  it('shows save confirmation', () => {
+    render(
+      <AIInsightPanel
+        insight={insight}
+        error=""
+        loading={false}
+        saveStatus="#1"
+        onGenerateInsight={() => {}}
+      />
+    )
+
+    expect(screen.getByText('Saved AI Insight: #1')).toBeInTheDocument()
   })
 
   it('shows API errors', () => {

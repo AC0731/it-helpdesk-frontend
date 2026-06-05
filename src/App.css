@@ -1071,3 +1071,110 @@ pre {
 .ai-insight-grid li + li {
   margin-top: 0.4rem;
 }
+
+/* Saved AI insight history */
+.ai-action-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+@media (min-width: 720px) {
+  .ai-action-row {
+    align-items: flex-end;
+  }
+}
+
+.saved-ai-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.saved-ai-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .saved-ai-header {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.saved-ai-header h2 {
+  margin: 0;
+}
+
+.saved-ai-header p:last-child {
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.saved-ai-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  background: var(--bg-main);
+}
+
+.saved-ai-empty h3 {
+  color: var(--text-main);
+  margin: 0;
+}
+
+.saved-ai-empty p {
+  margin: 0;
+}
+
+.saved-ai-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.saved-ai-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-main);
+  padding: 1rem;
+}
+
+.saved-ai-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.saved-ai-card-header h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.saved-ai-card-header p {
+  color: var(--text-muted);
+  margin: 0.25rem 0 0 0;
+  font-size: 0.82rem;
+}
+
+.saved-ai-summary {
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0.85rem 0 0 0;
+}
+
+.saved-ai-ticket {
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin: 0.75rem 0 0 0;
+}
