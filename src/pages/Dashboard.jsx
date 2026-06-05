@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { generateAiInsight } from '../api/ai'
 import { executeDiagnostics } from '../api/diagnostics'
 import { getApiErrorMessage } from '../api/client'
 import { createSupportTicket } from '../api/tickets'
@@ -19,6 +20,9 @@ export default function Dashboard() {
   const [ticketLoading, setTicketLoading] = useState(false)
   const [ticketPriority, setTicketPriority] = useState('medium')
   const [ticketRefreshKey, setTicketRefreshKey] = useState(0)
+  const [aiInsight, setAiInsight] = useState(null)
+  const [aiError, setAiError] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
 
   async function runDiagnostics(event) {
     event.preventDefault()
@@ -35,6 +39,8 @@ export default function Dashboard() {
     setResults(null)
     setTicketStatus('')
     setTicketError('')
+    setAiInsight(null)
+    setAiError('')
 
     try {
       const diagnosticResults = await executeDiagnostics(normalizedTarget)
@@ -73,6 +79,30 @@ export default function Dashboard() {
     }
   }
 
+  async function generateInsight() {
+    if (!results) {
+      return
+    }
+
+    setAiLoading(true)
+    setAiError('')
+
+    try {
+      const response = await generateAiInsight({
+        target: results.target,
+        pingData: results.results.ping,
+        tracerouteData: results.results.traceroute,
+        ports: results.results.ports
+      })
+
+      setAiInsight(response.insight)
+    } catch (err) {
+      setAiError(getApiErrorMessage(err))
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   return (
     <div className="dashboard-container">
       <DashboardHeader />
@@ -98,8 +128,12 @@ export default function Dashboard() {
           ticketError={ticketError}
           ticketLoading={ticketLoading}
           ticketPriority={ticketPriority}
+          aiInsight={aiInsight}
+          aiError={aiError}
+          aiLoading={aiLoading}
           onTicketPriorityChange={setTicketPriority}
           onGenerateTicket={generateTicket}
+          onGenerateAiInsight={generateInsight}
         />
       </main>
     </div>

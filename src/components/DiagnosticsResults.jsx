@@ -1,3 +1,4 @@
+import AIInsightPanel from './AIInsightPanel'
 import AlertBanner from './AlertBanner'
 import PortScannerResults from './PortScannerResults'
 import TerminalOutput from './TerminalOutput'
@@ -15,8 +16,12 @@ export default function DiagnosticsResults({
   ticketError,
   ticketLoading,
   ticketPriority,
+  aiInsight = null,
+  aiError = '',
+  aiLoading = false,
   onTicketPriorityChange,
-  onGenerateTicket
+  onGenerateTicket,
+  onGenerateAiInsight = () => {}
 }) {
   if (!results) {
     return null
@@ -70,6 +75,13 @@ export default function DiagnosticsResults({
       <TerminalOutput
         ping={results.results.ping}
         traceroute={results.results.traceroute}
+      />
+
+      <AIInsightPanel
+        insight={aiInsight}
+        error={aiError}
+        loading={aiLoading}
+        onGenerateInsight={onGenerateAiInsight}
       />
     </section>
   )
