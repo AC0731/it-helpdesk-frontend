@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [ticketStatus, setTicketStatus] = useState('')
   const [ticketError, setTicketError] = useState('')
   const [ticketLoading, setTicketLoading] = useState(false)
+  const [ticketPriority, setTicketPriority] = useState('medium')
   const [ticketRefreshKey, setTicketRefreshKey] = useState(0)
 
   async function runDiagnostics(event) {
@@ -59,7 +60,8 @@ export default function Dashboard() {
         userId: 'Demo Agent',
         target: results.target,
         pingData: results.results.ping,
-        tracerouteData: results.results.traceroute
+        tracerouteData: results.results.traceroute,
+        priority: ticketPriority
       })
 
       setTicketStatus(ticket.ticket_id)
@@ -95,6 +97,8 @@ export default function Dashboard() {
           ticketStatus={ticketStatus}
           ticketError={ticketError}
           ticketLoading={ticketLoading}
+          ticketPriority={ticketPriority}
+          onTicketPriorityChange={setTicketPriority}
           onGenerateTicket={generateTicket}
         />
       </main>
