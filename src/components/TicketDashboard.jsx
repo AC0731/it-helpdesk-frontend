@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Eye, RefreshCw, Ticket } from 'lucide-react'
+import { Eye, RefreshCw, Search, Ticket } from 'lucide-react'
 
 import { getApiErrorMessage } from '../api/client'
 import { getSupportTicket, listSupportTickets, updateSupportTicketStatus } from '../api/tickets'
@@ -8,11 +8,19 @@ import StatusBadge from './StatusBadge'
 import TicketDetailModal from './TicketDetailModal'
 
 const STATUS_FILTERS = [
-  { label: 'All', value: '' },
+  { label: 'All statuses', value: '' },
   { label: 'Open', value: 'open' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'Resolved', value: 'resolved' },
   { label: 'Closed', value: 'closed' }
+]
+
+const PRIORITY_FILTERS = [
+  { label: 'All priorities', value: '' },
+  { label: 'Low', value: 'low' },
+  { label: 'Medium', value: 'medium' },
+  { label: 'High', value: 'high' },
+  { label: 'Urgent', value: 'urgent' }
 ]
 
 const NEXT_STATUS_OPTIONS = [
@@ -35,6 +43,9 @@ function formatDate(value) {
 export default function TicketDashboard({ refreshKey }) {
   const [tickets, setTickets] = useState([])
   const [statusFilter, setStatusFilter] = useState('')
+  const [priorityFilter, setPriorityFilter] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [submittedSearch, setSubmittedSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [reloadKey, setReloadKey] = useState(0)
   const [updatingTicketId, setUpdatingTicketId] = useState('')
@@ -48,9 +59,28 @@ export default function TicketDashboard({ refreshKey }) {
     setReloadKey((currentKey) => currentKey + 1)
   }
 
-  function handleFilterChange(event) {
+  function handleStatusFilterChange(event) {
     setLoading(true)
     setStatusFilter(event.target.value)
+  }
+
+  function handlePriorityFilterChange(event) {
+    setLoading(true)
+    setPriorityFilter(event.target.value)
+  }
+
+  function handleSearchSubmit(event) {
+    event.preventDefault()
+    setLoading(true)
+    setSubmittedSearch(searchQuery.trim())
+  }
+
+  function clearFilters() {
+    setLoading(true)
+    setStatusFilter('')
+    setPriorityFilter('')
+    setSearchQuery('')
+    setSubmittedSearch('')
   }
 
   function closeTicketDetails() {
@@ -95,6 +125,8 @@ export default function TicketDashboard({ refreshKey }) {
       try {
         const response = await listSupportTickets({
           status: statusFilter,
+          priority: priorityFilter,
+          search: submittedSearch,
           limit: 50
         })
 
@@ -122,7 +154,7 @@ export default function TicketDashboard({ refreshKey }) {
     return () => {
       isActive = false
     }
-  }, [refreshKey, reloadKey, statusFilter])
+  }, [refreshKey, reloadKey, statusFilter, priorityFilter, submittedSearch])
 
   return (
     <section className="panel ticket-dashboard-panel fade-in">
@@ -146,21 +178,64 @@ export default function TicketDashboard({ refreshKey }) {
         </button>
       </div>
 
-      <div className="ticket-toolbar">
-        <label htmlFor="ticket-status-filter">Filter by status</label>
+      <div className="ticket-toolbar ticket-filter-grid">
+        <div>
+          <label htmlFor="ticket-status-filter">Status</label>
 
-        <select
-          id="ticket-status-filter"
-          className="status-filter"
-          value={statusFilter}
-          onChange={handleFilterChange}
-        >
-          {STATUS_FILTERS.map((filter) => (
-            <option key={filter.label} value={filter.value}>
-              {filter.label}
-            </option>
-          ))}
-        </select>
+          <select
+            id="ticket-status-filter"
+            className="status-filter"
+            value={statusFilter}
+            onChange={handleStatusFilterChange}
+          >
+            {STATUS_FILTERS.map((filter) => (
+              <option key={filter.label} value={filter.value}>
+                {filter.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="ticket-priority-filter">Priority</label>
+
+          <select
+            id="ticket-priority-filter"
+            className="status-filter"
+            value={priorityFilter}
+            onChange={handlePriorityFilterChange}
+          >
+            {PRIORITY_FILTERS.map((filter) => (
+              <option key={filter.label} value={filter.value}>
+                {filter.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <form className="ticket-search-form" onSubmit={handleSearchSubmit}>
+          <label htmlFor="ticket-search">Search</label>
+
+          <div className="ticket-search-row">
+            <input
+              id="ticket-search"
+              className="ticket-search-input"
+              type="search"
+              placeholder="Ticket, target, user, or summary"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
+
+            <button type="submit" className="btn-mini">
+              <Search className="icon-small" />
+              Search
+            </button>
+          </div>
+        </form>
+
+        <button type="button" className="btn-mini clear-filters-button" onClick={clearFilters}>
+          Clear Filters
+        </button>
       </div>
 
       <AlertBanner message={error} />
@@ -174,7 +249,7 @@ export default function TicketDashboard({ refreshKey }) {
         <div className="ticket-empty-state">
           <Ticket className="icon-large text-accent" />
           <h3>No tickets found</h3>
-          <p>Run diagnostics and generate a support ticket to populate this queue.</p>
+          <p>Try changing the filters or generate a support ticket from diagnostic results.</p>
         </div>
       ) : (
         <div className="ticket-list">
