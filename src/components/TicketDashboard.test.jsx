@@ -47,7 +47,7 @@ describe('TicketDashboard', () => {
 
     expect(screen.getByText('google.com')).toBeInTheDocument()
     expect(screen.getAllByText('Open').length).toBeGreaterThan(0)
-    expect(screen.getByText('Medium')).toBeInTheDocument()
+    expect(screen.getAllByText('Medium').length).toBeGreaterThan(0)
   })
 
   it('shows an empty state when no tickets exist', async () => {
@@ -61,6 +61,59 @@ describe('TicketDashboard', () => {
     await waitFor(() => {
       expect(screen.getByText('No tickets found')).toBeInTheDocument()
     })
+  })
+
+  it('sends status, priority, and search filters to the backend', async () => {
+    const user = userEvent.setup()
+
+    listSupportTickets.mockResolvedValue({
+      count: 1,
+      tickets: [mockTicket]
+    })
+
+    render(<TicketDashboard refreshKey={0} />)
+
+    await waitFor(() => {
+      expect(screen.getByText('TKT-123')).toBeInTheDocument()
+    })
+
+    await user.selectOptions(screen.getByLabelText('Status'), 'open')
+    await user.selectOptions(screen.getByLabelText('Priority'), 'medium')
+    await user.type(screen.getByLabelText('Search'), 'google')
+    await user.click(screen.getByRole('button', { name: /search/i }))
+
+    await waitFor(() => {
+      expect(listSupportTickets).toHaveBeenLastCalledWith({
+        status: 'open',
+        priority: 'medium',
+        search: 'google',
+        limit: 50
+      })
+    })
+  })
+
+  it('clears dashboard filters', async () => {
+    const user = userEvent.setup()
+
+    listSupportTickets.mockResolvedValue({
+      count: 1,
+      tickets: [mockTicket]
+    })
+
+    render(<TicketDashboard refreshKey={0} />)
+
+    await waitFor(() => {
+      expect(screen.getByText('TKT-123')).toBeInTheDocument()
+    })
+
+    await user.selectOptions(screen.getByLabelText('Status'), 'open')
+    await user.selectOptions(screen.getByLabelText('Priority'), 'medium')
+    await user.type(screen.getByLabelText('Search'), 'google')
+    await user.click(screen.getByRole('button', { name: /clear filters/i }))
+
+    expect(screen.getByLabelText('Status')).toHaveValue('')
+    expect(screen.getByLabelText('Priority')).toHaveValue('')
+    expect(screen.getByLabelText('Search')).toHaveValue('')
   })
 
   it('opens the ticket detail modal', async () => {
