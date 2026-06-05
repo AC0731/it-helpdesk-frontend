@@ -19,9 +19,13 @@ export default function DiagnosticsResults({
   aiInsight = null,
   aiError = '',
   aiLoading = false,
+  aiSaving = false,
+  aiSaveStatus = '',
+  aiSaveError = '',
   onTicketPriorityChange,
   onGenerateTicket,
-  onGenerateAiInsight = () => {}
+  onGenerateAiInsight = () => {},
+  onSaveAiInsight = () => {}
 }) {
   if (!results) {
     return null
@@ -81,7 +85,11 @@ export default function DiagnosticsResults({
         insight={aiInsight}
         error={aiError}
         loading={aiLoading}
+        saving={aiSaving}
+        saveStatus={aiSaveStatus}
+        saveError={aiSaveError}
         onGenerateInsight={onGenerateAiInsight}
+        onSaveInsight={onSaveAiInsight}
       />
     </section>
   )
