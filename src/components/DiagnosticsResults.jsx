@@ -22,6 +22,7 @@ export default function DiagnosticsResults({
   aiSaving = false,
   aiSaveStatus = '',
   aiSaveError = '',
+  savedInsightId = '',
   onTicketPriorityChange,
   onGenerateTicket,
   onGenerateAiInsight = () => {},
@@ -34,35 +35,38 @@ export default function DiagnosticsResults({
   return (
     <section className="panel results-panel fade-in">
       <div className="results-header">
-        <h2>
-          Target: <span className="text-accent">{results.target}</span>
-        </h2>
+        <div>
+          <p className="eyebrow-label">Diagnostic Result</p>
+          <h2>
+            Target: <span className="text-accent">{results.target}</span>
+          </h2>
+        </div>
 
         <div className="ticket-create-controls">
-          <label className="priority-select-label" htmlFor="ticket-priority">
-            Ticket priority
+          <label className="field-group compact-field" htmlFor="ticket-priority">
+            <span>Ticket priority</span>
+            <select
+              id="ticket-priority"
+              className="priority-select"
+              value={ticketPriority}
+              onChange={(event) => onTicketPriorityChange(event.target.value)}
+              disabled={ticketLoading}
+            >
+              {PRIORITY_OPTIONS.map((priority) => (
+                <option key={priority.value} value={priority.value}>
+                  {priority.label}
+                </option>
+              ))}
+            </select>
           </label>
-
-          <select
-            id="ticket-priority"
-            className="priority-select"
-            value={ticketPriority}
-            onChange={(event) => onTicketPriorityChange(event.target.value)}
-            disabled={ticketLoading}
-          >
-            {PRIORITY_OPTIONS.map((priority) => (
-              <option key={priority.value} value={priority.value}>
-                {priority.label}
-              </option>
-            ))}
-          </select>
 
           <button
             onClick={onGenerateTicket}
-            className="btn-secondary"
+            className="btn-secondary action-button ticket-submit-button"
+            aria-label="Generate support ticket"
             disabled={ticketLoading}
           >
-            {ticketLoading ? 'Creating Ticket...' : 'Generate Support Ticket'}
+            {ticketLoading ? 'Creating...' : 'Generate Ticket'}
           </button>
         </div>
       </div>
@@ -86,6 +90,7 @@ export default function DiagnosticsResults({
         error={aiError}
         loading={aiLoading}
         saving={aiSaving}
+        savedInsightId={savedInsightId}
         saveStatus={aiSaveStatus}
         saveError={aiSaveError}
         onGenerateInsight={onGenerateAiInsight}

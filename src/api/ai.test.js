@@ -1,8 +1,9 @@
-import { generateAiInsight, listAiInsights, saveAiInsight } from './ai'
+import { deleteAiInsight, generateAiInsight, listAiInsights, saveAiInsight } from './ai'
 import { apiClient } from './client'
 
 vi.mock('./client', () => ({
   apiClient: {
+    delete: vi.fn(),
     get: vi.fn(),
     post: vi.fn()
   }
@@ -101,5 +102,19 @@ describe('AI API helpers', () => {
     })
 
     expect(response.count).toBe(1)
+  })
+
+  it('deletes a saved AI insight', async () => {
+    apiClient.delete.mockResolvedValue({
+      data: {
+        status: 'success',
+        deleted_id: 1
+      }
+    })
+
+    const response = await deleteAiInsight(1)
+
+    expect(apiClient.delete).toHaveBeenCalledWith('/api/ai/insights/1')
+    expect(response.deleted_id).toBe(1)
   })
 })

@@ -54,3 +54,9 @@ export async function listAiInsights({ ticketId = '', limit = 10 } = {}) {
 
   return response.data
 }
+
+export async function deleteAiInsight(insightId) {
+  const response = await apiClient.delete(`/api/ai/insights/${insightId}`)
+
+  return response.data
+}

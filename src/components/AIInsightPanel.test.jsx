@@ -46,7 +46,7 @@ describe('AIInsightPanel', () => {
       />
     )
 
-    await user.click(screen.getByRole('button', { name: /generate ai insight/i }))
+    await user.click(screen.getByRole('button', { name: /generate insight/i }))
 
     expect(handleGenerateInsight).toHaveBeenCalledOnce()
   })
@@ -69,6 +69,20 @@ describe('AIInsightPanel', () => {
     await user.click(screen.getByRole('button', { name: /save insight/i }))
 
     expect(handleSaveInsight).toHaveBeenCalledOnce()
+  })
+
+  it('disables the save button after an insight is saved', () => {
+    render(
+      <AIInsightPanel
+        insight={insight}
+        error=""
+        loading={false}
+        savedInsightId="1"
+        onGenerateInsight={() => {}}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: /already saved/i })).toBeDisabled()
   })
 
   it('renders an AI insight result', () => {
@@ -99,7 +113,7 @@ describe('AIInsightPanel', () => {
       />
     )
 
-    expect(screen.getByText('Saved AI Insight: #1')).toBeInTheDocument()
+    expect(screen.getByText('Saved Insight: #1')).toBeInTheDocument()
   })
 
   it('shows API errors', () => {
