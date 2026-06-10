@@ -158,3 +158,18 @@
   color: var(--text-main);
   font-weight: 800;
 }
+/* Controlled queue layout polish */
+.queue-column {
+  min-width: 0;
+}
+
+@media (min-width: 1180px) {
+  .diagnostics-column {
+    position: static;
+    top: auto;
+  }
+
+  .queue-column {
+    grid-column: 1 / -1;
+  }
+}

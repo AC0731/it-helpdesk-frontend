@@ -53,26 +53,42 @@ export default function TicketDashboard({ refreshKey }) {
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState('')
   const [error, setError] = useState('')
+  const [searchError, setSearchError] = useState('')
+
+  const hasActiveFilters = Boolean(statusFilter || priorityFilter || submittedSearch)
+  const showInitialLoading = loading && tickets.length === 0
 
   function refreshTickets() {
     setLoading(true)
+    setSearchError('')
     setReloadKey((currentKey) => currentKey + 1)
   }
 
   function handleStatusFilterChange(event) {
     setLoading(true)
+    setSearchError('')
     setStatusFilter(event.target.value)
   }
 
   function handlePriorityFilterChange(event) {
     setLoading(true)
+    setSearchError('')
     setPriorityFilter(event.target.value)
   }
 
   function handleSearchSubmit(event) {
     event.preventDefault()
+
+    const trimmedSearch = searchQuery.trim()
+
+    if (!trimmedSearch) {
+      setSearchError('Type a ticket ID, target, user, or summary before searching.')
+      return
+    }
+
+    setSearchError('')
     setLoading(true)
-    setSubmittedSearch(searchQuery.trim())
+    setSubmittedSearch(trimmedSearch)
   }
 
   function clearFilters() {
@@ -81,6 +97,7 @@ export default function TicketDashboard({ refreshKey }) {
     setPriorityFilter('')
     setSearchQuery('')
     setSubmittedSearch('')
+    setSearchError('')
   }
 
   function closeTicketDetails() {
@@ -169,11 +186,11 @@ export default function TicketDashboard({ refreshKey }) {
 
         <button
           type="button"
-          className="btn-outline"
+          className="btn-outline dashboard-refresh-button"
           onClick={refreshTickets}
           disabled={loading}
         >
-          <RefreshCw className={`icon-small ${loading ? 'spinner' : ''}`} />
+          <RefreshCw className={`icon-small ${showInitialLoading ? 'spinner' : ''}`} />
           Refresh
         </button>
       </div>
@@ -223,24 +240,41 @@ export default function TicketDashboard({ refreshKey }) {
               type="search"
               placeholder="Ticket, target, user, or summary"
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={(event) => {
+                setSearchQuery(event.target.value)
+
+                if (searchError) {
+                  setSearchError('')
+                }
+              }}
             />
 
-            <button type="submit" className="btn-mini">
+            <button type="submit" className="btn-mini ticket-search-button">
               <Search className="icon-small" />
               Search
             </button>
           </div>
+
+          {searchError ? (
+            <p className="field-warning" role="alert">
+              {searchError}
+            </p>
+          ) : null}
         </form>
 
-        <button type="button" className="btn-mini clear-filters-button" onClick={clearFilters}>
+        <button
+          type="button"
+          className="btn-mini clear-filters-button"
+          onClick={clearFilters}
+          disabled={!hasActiveFilters && !searchQuery}
+        >
           Clear Filters
         </button>
       </div>
 
       <AlertBanner message={error} />
 
-      {loading && tickets.length === 0 ? (
+      {showInitialLoading ? (
         <div className="ticket-empty-state">
           <RefreshCw className="icon-small spinner" />
           Loading support tickets...
@@ -277,7 +311,7 @@ export default function TicketDashboard({ refreshKey }) {
               <div className="ticket-actions">
                 <button
                   type="button"
-                  className="btn-mini"
+                  className="btn-mini ticket-action-primary"
                   onClick={() => handleOpenTicketDetails(ticket.ticket_id)}
                 >
                   <Eye className="icon-small" />
