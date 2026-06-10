@@ -56,6 +56,7 @@ export default function TicketDashboard({ refreshKey }) {
   const [searchError, setSearchError] = useState('')
 
   const hasActiveFilters = Boolean(statusFilter || priorityFilter || submittedSearch)
+  const hasSubmittedSearch = Boolean(submittedSearch)
   const showInitialLoading = loading && tickets.length === 0
 
   function refreshTickets() {
@@ -191,7 +192,7 @@ export default function TicketDashboard({ refreshKey }) {
           disabled={loading}
         >
           <RefreshCw className={`icon-small ${showInitialLoading ? 'spinner' : ''}`} />
-          Refresh
+          Reload Tickets
         </button>
       </div>
 
@@ -282,8 +283,14 @@ export default function TicketDashboard({ refreshKey }) {
       ) : tickets.length === 0 ? (
         <div className="ticket-empty-state">
           <Ticket className="icon-large text-accent" />
-          <h3>No tickets found</h3>
-          <p>Try changing the filters or generate a support ticket from diagnostic results.</p>
+          <h3>{hasActiveFilters ? 'No matching tickets found' : 'No tickets found'}</h3>
+          <p>
+            {hasSubmittedSearch
+              ? `No tickets matched "${submittedSearch}". Try a ticket ID, target, user, or summary from an existing ticket.`
+              : hasActiveFilters
+                ? 'No tickets matched the selected filters. Try clearing the filters or choosing a different status or priority.'
+                : 'Generate a support ticket from diagnostic results to populate this queue.'}
+          </p>
         </div>
       ) : (
         <div className="ticket-list">

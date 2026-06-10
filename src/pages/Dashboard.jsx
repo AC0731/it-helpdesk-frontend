@@ -227,12 +227,14 @@ export default function Dashboard() {
             <DashboardWelcomePanel />
           )}
         </section>
-
         <aside className="operations-column">
           <TicketAnalytics refreshKey={ticketRefreshKey} />
           <SavedAIInsightsPanel refreshKey={aiHistoryRefreshKey} />
-          <TicketDashboard refreshKey={ticketRefreshKey} />
         </aside>
+
+        <section className="queue-column">
+          <TicketDashboard refreshKey={ticketRefreshKey} />
+        </section>
       </main>
     </div>
   )
