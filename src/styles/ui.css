@@ -363,3 +363,43 @@
     justify-content: stretch;
   }
 }
+
+/* Final generate ticket alignment */
+@media (min-width: 720px) {
+  .ticket-create-controls {
+    display: grid;
+    grid-template-columns: minmax(180px, 220px) minmax(160px, 190px);
+    grid-template-rows: auto 2.9rem;
+    column-gap: 0.75rem;
+    row-gap: 0.4rem;
+    align-items: end;
+    width: auto;
+  }
+
+  .ticket-create-controls .compact-field {
+    display: contents;
+  }
+
+  .ticket-create-controls .compact-field span {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .ticket-create-controls .priority-select {
+    grid-column: 1;
+    grid-row: 2;
+    height: 2.9rem;
+    min-height: 2.9rem;
+  }
+
+  .ticket-create-controls .ticket-submit-button {
+    grid-column: 2;
+    grid-row: 2;
+    height: 2.9rem;
+    min-height: 2.9rem;
+    align-self: stretch;
+    margin: 0;
+  }
+}
