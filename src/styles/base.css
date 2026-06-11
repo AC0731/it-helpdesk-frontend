@@ -1,0 +1,87 @@
+:root {
+  --bg-main: #0f172a;
+  --bg-panel: #1e293b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent: #0ea5e9;
+  --accent-hover: #0284c7;
+  --btn-success: #10b981;
+  --btn-success-hover: #059669;
+  --terminal-bg: #020617;
+  --terminal-text: #a3e635;
+  --border: #334155;
+}
+
+html {
+  background: var(--bg-main);
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+body,
+#root {
+  min-width: 0;
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  min-width: 0;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.icon-large {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-small {
+  width: 18px;
+  height: 18px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+.fade-in {
+  animation: fadeIn 0.35s ease-in;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

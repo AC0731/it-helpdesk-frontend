@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BrainCircuit, Network, ShieldCheck, TicketCheck } from 'lucide-react'
 
 import { generateAiInsight, saveAiInsight } from '../api/ai'
 import { executeDiagnostics } from '../api/diagnostics'
@@ -10,6 +11,51 @@ import DiagnosticsResults from '../components/DiagnosticsResults'
 import SavedAIInsightsPanel from '../components/SavedAIInsightsPanel'
 import TicketAnalytics from '../components/TicketAnalytics'
 import TicketDashboard from '../components/TicketDashboard'
+
+function DashboardWelcomePanel() {
+  return (
+    <section className="panel welcome-panel fade-in">
+      <div className="welcome-hero">
+        <p className="eyebrow-label">Support Workflow</p>
+        <h2>Run diagnostics, create tickets, and review troubleshooting insights.</h2>
+        <p>
+          Start with a public domain or IP address. The dashboard will show reachability,
+          route, port, ticket, and insight workflows after the diagnostic run completes.
+        </p>
+      </div>
+
+      <div className="workflow-grid">
+        <article className="workflow-card">
+          <Network className="icon-small text-accent" />
+          <h3>Network Diagnostics</h3>
+          <p>Run backend-powered reachability, route, DNS, and port checks.</p>
+        </article>
+
+        <article className="workflow-card">
+          <BrainCircuit className="icon-small text-accent" />
+          <h3>Troubleshooting Insight</h3>
+          <p>Generate a concise summary with probable causes and next steps.</p>
+        </article>
+
+        <article className="workflow-card">
+          <TicketCheck className="icon-small text-accent" />
+          <h3>Support Tickets</h3>
+          <p>Create prioritized tickets and track progress through the queue.</p>
+        </article>
+
+        <article className="workflow-card">
+          <ShieldCheck className="icon-small text-accent" />
+          <h3>Safe Inputs</h3>
+          <p>Public target validation and redaction keep the workflow controlled.</p>
+        </article>
+      </div>
+
+      <div className="welcome-note">
+        <strong>Try:</strong> <span>google.com</span> or <span>8.8.8.8</span>
+      </div>
+    </section>
+  )
+}
 
 export default function Dashboard() {
   const [target, setTarget] = useState('')
@@ -27,6 +73,7 @@ export default function Dashboard() {
   const [aiSaving, setAiSaving] = useState(false)
   const [aiSaveStatus, setAiSaveStatus] = useState('')
   const [aiSaveError, setAiSaveError] = useState('')
+  const [savedInsightId, setSavedInsightId] = useState('')
   const [aiHistoryRefreshKey, setAiHistoryRefreshKey] = useState(0)
 
   async function runDiagnostics(event) {
@@ -48,6 +95,7 @@ export default function Dashboard() {
     setAiError('')
     setAiSaveStatus('')
     setAiSaveError('')
+    setSavedInsightId('')
 
     try {
       const diagnosticResults = await executeDiagnostics(normalizedTarget)
@@ -95,6 +143,7 @@ export default function Dashboard() {
     setAiError('')
     setAiSaveStatus('')
     setAiSaveError('')
+    setSavedInsightId('')
 
     try {
       const response = await generateAiInsight({
@@ -113,7 +162,7 @@ export default function Dashboard() {
   }
 
   async function saveInsight() {
-    if (!results || !aiInsight) {
+    if (!results || !aiInsight || savedInsightId) {
       return
     }
 
@@ -129,7 +178,10 @@ export default function Dashboard() {
         ports: results.results.ports
       })
 
-      setAiSaveStatus(`#${response.insight.id}`)
+      const newSavedInsightId = String(response.insight.id)
+
+      setSavedInsightId(newSavedInsightId)
+      setAiSaveStatus(`#${newSavedInsightId}`)
       setAiHistoryRefreshKey((currentKey) => currentKey + 1)
     } catch (err) {
       setAiSaveError(getApiErrorMessage(err))
@@ -143,7 +195,7 @@ export default function Dashboard() {
       <DashboardHeader />
 
       <main className="dashboard-main">
-        <div className="dashboard-sidebar">
+        <section className="diagnostics-column">
           <DiagnosticsForm
             target={target}
             error={error}
@@ -152,30 +204,37 @@ export default function Dashboard() {
             onSubmit={runDiagnostics}
           />
 
+          {results ? (
+            <DiagnosticsResults
+              results={results}
+              ticketStatus={ticketStatus}
+              ticketError={ticketError}
+              ticketLoading={ticketLoading}
+              ticketPriority={ticketPriority}
+              aiInsight={aiInsight}
+              aiError={aiError}
+              aiLoading={aiLoading}
+              aiSaving={aiSaving}
+              aiSaveStatus={aiSaveStatus}
+              aiSaveError={aiSaveError}
+              savedInsightId={savedInsightId}
+              onTicketPriorityChange={setTicketPriority}
+              onGenerateTicket={generateTicket}
+              onGenerateAiInsight={generateInsight}
+              onSaveAiInsight={saveInsight}
+            />
+          ) : (
+            <DashboardWelcomePanel />
+          )}
+        </section>
+        <aside className="operations-column">
           <TicketAnalytics refreshKey={ticketRefreshKey} />
-
           <SavedAIInsightsPanel refreshKey={aiHistoryRefreshKey} />
+        </aside>
 
+        <section className="queue-column">
           <TicketDashboard refreshKey={ticketRefreshKey} />
-        </div>
-
-        <DiagnosticsResults
-          results={results}
-          ticketStatus={ticketStatus}
-          ticketError={ticketError}
-          ticketLoading={ticketLoading}
-          ticketPriority={ticketPriority}
-          aiInsight={aiInsight}
-          aiError={aiError}
-          aiLoading={aiLoading}
-          aiSaving={aiSaving}
-          aiSaveStatus={aiSaveStatus}
-          aiSaveError={aiSaveError}
-          onTicketPriorityChange={setTicketPriority}
-          onGenerateTicket={generateTicket}
-          onGenerateAiInsight={generateInsight}
-          onSaveAiInsight={saveInsight}
-        />
+        </section>
       </main>
     </div>
   )

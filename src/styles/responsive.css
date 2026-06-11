@@ -1,0 +1,91 @@
+@media (min-width: 640px) {
+  .results-header,
+  .ticket-search-row {
+    flex-direction: row;
+  }
+
+  .ticket-create-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    width: auto;
+  }
+
+  .ticket-detail-summary {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 720px) {
+  .ai-insight-header,
+  .saved-ai-header {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .ai-action-row {
+    align-items: flex-end;
+    width: auto;
+  }
+
+  .ai-insight-grid,
+  .ticket-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 760px) {
+  .ticket-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .clear-filters-button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 1180px) {
+  .ticket-filter-grid {
+    grid-template-columns: 1fr 1fr 1.4fr auto;
+  }
+
+  .clear-filters-button {
+    width: fit-content;
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard-container {
+    width: min(100% - 1rem, 1440px);
+    padding: 0.75rem;
+  }
+
+  .dashboard-header {
+    align-items: stretch;
+  }
+
+  .system-status {
+    width: fit-content;
+  }
+
+  .panel {
+    border-radius: 10px;
+  }
+
+  .ticket-actions,
+  .ticket-badge-row,
+  .ai-insight-summary {
+    align-items: stretch;
+  }
+
+  .ticket-actions .btn-mini,
+  .ai-action-row .btn-outline,
+  .ai-action-row .btn-secondary,
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}

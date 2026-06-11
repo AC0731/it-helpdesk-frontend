@@ -1,4 +1,4 @@
-import { BrainCircuit, Save, Sparkles } from 'lucide-react'
+import { BrainCircuit, CheckCircle2, Save, Sparkles } from 'lucide-react'
 
 import AlertBanner from './AlertBanner'
 
@@ -18,11 +18,14 @@ export default function AIInsightPanel({
   error,
   loading,
   saving = false,
+  savedInsightId = '',
   saveStatus = '',
   saveError = '',
   onGenerateInsight,
   onSaveInsight = () => {}
 }) {
+  const hasSavedInsight = Boolean(savedInsightId || saveStatus)
+
   return (
     <section className="ai-insight-panel">
       <div className="ai-insight-header">
@@ -40,22 +43,26 @@ export default function AIInsightPanel({
         <div className="ai-action-row">
           <button
             type="button"
-            className="btn-secondary"
+            className="btn-secondary action-button"
             onClick={onGenerateInsight}
             disabled={loading}
           >
             <Sparkles className="icon-small" />
-            {loading ? 'Generating...' : 'Generate AI Insight'}
+            {loading ? 'Generating...' : 'Generate Insight'}
           </button>
 
           <button
             type="button"
-            className="btn-outline"
+            className="btn-outline action-button"
             onClick={onSaveInsight}
-            disabled={!insight || saving}
+            disabled={!insight || saving || hasSavedInsight}
           >
-            <Save className="icon-small" />
-            {saving ? 'Saving...' : 'Save Insight'}
+            {hasSavedInsight ? (
+              <CheckCircle2 className="icon-small" />
+            ) : (
+              <Save className="icon-small" />
+            )}
+            {saving ? 'Saving...' : hasSavedInsight ? 'Already Saved' : 'Save Insight'}
           </button>
         </div>
       </div>
@@ -63,7 +70,7 @@ export default function AIInsightPanel({
       <AlertBanner message={error} />
       <AlertBanner message={saveError} />
       <AlertBanner
-        message={saveStatus ? `Saved AI Insight: ${saveStatus}` : ''}
+        message={saveStatus ? `Saved Insight: ${saveStatus}` : ''}
         type="success"
       />
 
