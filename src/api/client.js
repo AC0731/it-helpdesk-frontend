@@ -29,6 +29,21 @@ export function getApiErrorMessage(error) {
     return `${typeof detail === 'string' ? detail : 'Request limit reached. Please retry shortly.'}${reference}`
   }
 
+  if (status === 504) {
+    return `Diagnostic execution timed out before completion.${reference}`
+  }
+
+  if (
+    status === 503 &&
+    typeof detail === 'string' &&
+    [
+      'Diagnostic capacity is currently full. Retry shortly.',
+      'Diagnostics completed but could not be saved.'
+    ].includes(detail)
+  ) {
+    return `${detail}${reference}`
+  }
+
   if (status >= 500) {
     return `The backend could not complete the request. Please retry or use the request reference for troubleshooting.${reference}`
   }
