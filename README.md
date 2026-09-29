@@ -1,61 +1,98 @@
-# SupportOps Diagnostic Portal - Frontend
+# SupportOps Diagnostic Portal — Frontend
 
-React + Vite frontend for a support operations dashboard that connects to a FastAPI diagnostic backend.
+Production-style React/Vite frontend for a full-stack IT support and diagnostic platform.
 
-I built this as a full-stack portfolio project around a realistic IT support workflow: run diagnostics on a public target, review the technical output, generate a troubleshooting summary, save useful insight history, and create support tickets from the results.
+SupportOps is built around a realistic support workflow: validate a public diagnostic target, collect network evidence, review the result, generate troubleshooting guidance, create a structured ticket, and track the case through resolution.
 
-The main goal was to make the app feel like a small internal tool a support technician could actually use, not just a static dashboard with mock cards.
+The frontend is paired with a FastAPI backend that owns network execution, persistence, target-safety controls, AI redaction, rate limiting, and operational health checks.
 
-## Live Demo
+## Live system
 
-Frontend:
+- Frontend: https://it-support-diagnostic-portal.vercel.app
+- API: https://it-support-api-g0b4.onrender.com
+- API docs: https://it-support-api-g0b4.onrender.com/docs
+- Backend repository: https://github.com/AC0731/it-helpdesk-backend
+
+## Engineering scope
+
+The project goes beyond UI assembly. The current implementation demonstrates:
+
+- React component architecture and stateful workflows
+- typed API contracts at the application boundary
+- bounded client request timeouts
+- traceable API failures using backend request IDs
+- safe handling of validation, throttling, timeout, and 5xx conditions
+- display of the public IP actually pinned for diagnostics
+- ticket analytics and searchable support queues
+- saved troubleshooting insight history
+- frontend regression tests
+- dependency vulnerability auditing in CI
+- production builds and Vercel deployment
+
+## Support workflow
 
 ```text
-https://it-support-diagnostic-portal.vercel.app
+User target
+    ↓
+Frontend validation / loading state
+    ↓
+FastAPI safety boundary
+    ↓
+Public-address resolution + pinning
+    ↓
+Reachability / route / port diagnostics
+    ↓
+Structured result
+    ↓
+Troubleshooting insight
+    ↓
+Ticket creation
+    ↓
+Queue / analytics / status updates
 ```
 
-Backend API:
+The frontend intentionally keeps network and security decisions on the backend. It never stores API/provider secrets and does not execute diagnostics directly from the browser.
 
-```text
-https://it-support-api-g0b4.onrender.com
-```
+## Security and reliability behavior
 
-Backend API Docs:
+### Request traceability
 
-```text
-https://it-support-api-g0b4.onrender.com/docs
-```
+Backend responses include an `X-Request-ID`. User-facing errors surface that reference when available so a support report can be correlated with server-side telemetry.
 
-## What I Built
+### Bounded requests
 
-This frontend is the UI layer for a support diagnostics and ticket workflow.
+Axios uses a 20-second timeout rather than leaving requests open indefinitely. Timeout errors are distinguished from backend failures and target-validation errors.
 
-It includes:
+### Safe server-error handling
 
-- a diagnostic form for public domains and IP addresses
-- reachability, route, and port result display
-- support ticket creation from diagnostic output
-- ticket priority selection
-- ticket analytics
-- ticket status updates
-- searchable and filterable ticket queue
-- full ticket detail modal
-- troubleshooting insight generation
-- saved insight history
-- delete confirmation modal for saved insights
-- loading, empty, success, and error states
-- reusable API helper modules
-- reusable React components
-- frontend test coverage
-- Vercel deployment setup
+For 5xx responses, the frontend uses a generic operational message instead of echoing internal backend details.
 
-The backend handles validation, diagnostics, ticket storage, analytics, saved insight history, and the backend-only troubleshooting insight flow.
+### Pinned diagnostic address
+
+The result view shows `resolved_ip`, which is the public address approved by the backend execution boundary. This makes DNS/target behavior visible during troubleshooting.
+
+## Security finding: DNS rebinding boundary
+
+A backend review found a validation-to-use gap: a domain could be validated as public and then be resolved again later by the network diagnostic function.
+
+That creates a DNS-rebinding / TOCTOU risk for any service making outbound requests on behalf of a user.
+
+The remediation is implemented in the backend and reflected in this frontend:
+
+- resolve again at the execution boundary
+- reject the complete DNS answer set if any address is private/reserved
+- select a deterministic public IP
+- execute network checks against the pinned address
+- return that address in the diagnostic result
+- display the approved address in the UI
+
+The backend repository preserves the regression test and fix history.
 
 ## Screenshots
 
-### Dashboard overview
+### Operations dashboard
 
-![Dashboard overview](screenshots/01-dashboard-overview.png)
+![SupportOps dashboard](screenshots/01-dashboard-overview.png)
 
 ### Diagnostic result and ticket creation
 
@@ -65,378 +102,167 @@ The backend handles validation, diagnostics, ticket storage, analytics, saved in
 
 ![Troubleshooting insight generated](screenshots/03-ai-insight-generated.png)
 
-### Saved insight history
-
-![Saved insight history](screenshots/04-saved-ai-insights.png)
-
-### Ticket dashboard
+### Ticket operations
 
 ![Ticket dashboard](screenshots/06-ticket-dashboard.png)
 
-### Full ticket record
-
-![Ticket record modal](screenshots/07-ticket-record-modal.png)
-
-## Main Workflow
-
-1. Enter a public domain or IP address.
-2. Run diagnostics through the backend.
-3. Review reachability, route, and open port results.
-4. Generate a troubleshooting insight from the diagnostic output.
-5. Save the insight if it is useful for later review.
-6. Choose a ticket priority.
-7. Create a support ticket from the diagnostic result.
-8. Track the ticket in the dashboard.
-9. Filter tickets by status, priority, or search query.
-10. Open full ticket details when more evidence is needed.
-
-## Features
+## Core capabilities
 
 ### Diagnostics
 
-- Public domain/IP input
-- Backend-powered reachability checks
-- Route diagnostic output
-- Open port result display
-- Clean fallback messages when ping or traceroute are restricted by the environment
-- Validation handling for unsafe or unsupported targets
+- public domain/IP target input
+- reachability results
+- route output
+- common-port results
+- public-address pinning visibility
+- clean fallback states when system utilities are restricted
 
-### Ticket workflow
+### Ticket operations
 
-- Generate support tickets from diagnostic results
-- Select ticket priority before creation
-- View ticket queue
-- Filter by status and priority
-- Search by ticket, target, user, or summary
-- Show a no-match message when a search returns no results
-- Update ticket status from the dashboard
-- Open a full ticket record modal
+- create ticket from diagnostic evidence
+- choose priority
+- status lifecycle updates
+- search and filtering
+- analytics
+- full case detail modal
 
-### Troubleshooting insight workflow
+### Troubleshooting insights
 
-- Generate a structured troubleshooting summary from diagnostic evidence
-- Show probable causes, recommended next steps, and risk level
-- Save useful insights to history
-- Prevent duplicate saved insights on the backend
-- Delete saved insights with a custom confirmation modal
-- Refresh saved insight history without reloading the whole page
+- probable cause summary
+- recommended next actions
+- risk level
+- saved insight history
+- duplicate protection on the backend
+- delete confirmation workflow
 
-### UI states
+## API error model
 
-- Loading states
-- Empty states
-- Success messages
-- Error messages
-- Disabled buttons when actions are not available
-- Responsive layout for desktop and smaller screens
+`src/api/client.js` centralizes request behavior.
 
-## Tech Stack
+It distinguishes:
+
+- target validation errors
+- rate-limit responses
+- request timeout
+- backend/server failure
+- network connectivity failure
+
+Internal server details are not displayed to the user for 5xx failures.
+
+## Testing
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+Coverage includes:
+
+- diagnostic forms/results
+- pinned address rendering
+- ticket workflow
+- ticket filtering/analytics
+- saved insight behavior
+- timeout and operational failure messages
+- request-reference handling
+- reusable API helpers
+
+## CI and dependency security
+
+GitHub Actions runs:
+
+```text
+npm ci
+npm audit --omit=dev --audit-level=high
+npm run lint
+npm test
+npm run build
+```
+
+The dependency audit surfaced vulnerable Axios/form-data versions during the security pass. The dependency graph was remediated and the final CI run is green.
+
+Final verified frontend CI:  
+https://github.com/AC0731/it-helpdesk-frontend/actions/runs/36568618101
+
+## Architecture
+
+```text
+React / Vite
+   │
+   ├── API client + operational error handling
+   │
+   ├── Diagnostic workflow
+   │
+   ├── Insight workflow
+   │
+   └── Ticket operations
+   │
+   ▼
+FastAPI backend
+   │
+   ├── target safety / SSRF boundary
+   ├── diagnostics
+   ├── persistence
+   ├── AI redaction / rate limiting
+   └── readiness / request tracing
+```
+
+See `docs/architecture.md` and the backend security documentation for deeper implementation detail.
+
+## Tech stack
 
 - React
 - Vite
 - JavaScript
 - Axios
-- Lucide React
-- CSS variables
 - Vitest
 - Testing Library
 - ESLint
 - GitHub Actions
 - Vercel
+- FastAPI backend
+- SQLAlchemy persistence
 
-## Repository Pair
+## Environment
 
-This frontend is part of a full-stack project.
-
-Frontend repo:
-
-```text
-AC0731/it-helpdesk-frontend
-```
-
-Backend repo:
-
-```text
-AC0731/it-helpdesk-backend
-```
-
-The backend is built with FastAPI and provides the diagnostic, ticket, analytics, and troubleshooting insight APIs used by this frontend.
-
-## API Endpoints Used
-
-```text
-POST /api/diagnostics
-GET /api/diagnostics/history
-
-POST /api/ticket
-GET /api/tickets
-GET /api/tickets/{ticket_id}
-PATCH /api/tickets/{ticket_id}
-GET /api/tickets/analytics
-
-POST /api/ai/insight
-POST /api/ai/insight/save
-GET /api/ai/insights
-DELETE /api/ai/insights/{insight_id}
-```
-
-## Project Structure
-
-```text
-src/
-  api/
-    ai.js
-    client.js
-    diagnostics.js
-    tickets.js
-
-  components/
-    AIInsightPanel.jsx
-    AlertBanner.jsx
-    DashboardHeader.jsx
-    DiagnosticsForm.jsx
-    DiagnosticsResults.jsx
-    PortScannerResults.jsx
-    SavedAIInsightsPanel.jsx
-    StatusBadge.jsx
-    TerminalOutput.jsx
-    TicketAnalytics.jsx
-    TicketDashboard.jsx
-    TicketDetailModal.jsx
-
-  pages/
-    Dashboard.jsx
-
-  styles/
-    base.css
-    layout.css
-    ui.css
-    tickets.css
-    insights.css
-    responsive.css
-```
-
-I split the CSS into smaller files because the first version of the stylesheet was getting hard to work with. It is still plain CSS, but separating layout, tickets, insight panels, and base styles made the final polish easier to manage.
-
-## Environment Variables
-
-Create a local `.env.local` file in the project root:
-
-```text
+```env
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-For production:
+Production:
 
-```text
+```env
 VITE_API_BASE_URL=https://it-support-api-g0b4.onrender.com
 ```
 
-Do not commit `.env.local`.
-
-Use `.env.example` as the safe template.
-
-## Run Locally
-
-Install dependencies:
+## Local development
 
 ```bash
 npm install
-```
-
-Start the development server:
-
-```bash
 npm run dev
 ```
 
-The app will run at:
+Default development URL:
 
 ```text
 http://localhost:5173
 ```
 
-## Local Full-Stack Testing
+## Engineering decisions
 
-Start the backend first:
+**Security boundaries stay server-side.** Browser code never decides whether a network target is safe.
 
-```powershell
-cd C:\Users\akank\it-helpdesk-backend
-.\venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload
-```
+**Errors are operationally useful.** User-facing errors are concise while still exposing a correlation reference.
 
-Then start the frontend:
+**Failure modes are explicit.** Timeout, validation, rate limiting, and server errors are not collapsed into one generic message.
 
-```powershell
-cd C:\Users\akank\it-helpdesk-frontend
-npm run dev
-```
+**Troubleshooting evidence remains visible.** The approved public IP, diagnostic output, insight result, and ticket record can be reviewed together.
 
-Manual smoke test:
+## Repository pair
 
-- Load the dashboard.
-- Run diagnostics with `google.com`, `facebook.com`, or `8.8.8.8`.
-- Confirm reachability, route, and port results render.
-- Generate a troubleshooting insight.
-- Save the insight.
-- Confirm saved insight history refreshes.
-- Select ticket priority.
-- Generate a support ticket.
-- Confirm the ticket appears in the dashboard.
-- Open the ticket detail modal.
-- Change ticket status to In Progress.
-- Change ticket status to Resolved.
-- Test status, priority, and search filters.
-- Try a search that does not match any tickets.
-- Delete a saved insight and confirm the custom modal appears.
-
-## Scripts
-
-```bash
-npm run dev
-npm run build
-npm run preview
-npm run lint
-npm test
-npm run test:watch
-```
-
-## Testing
-
-Run linting:
-
-```bash
-npm run lint
-```
-
-Run automated tests:
-
-```bash
-npm test
-```
-
-Run production build:
-
-```bash
-npm run build
-```
-
-Current automated coverage includes:
-
-- status badge rendering
-- diagnostics form behavior
-- diagnostics result rendering
-- ticket priority selection
-- ticket dashboard loading and empty states
-- ticket status updates
-- ticket filtering behavior
-- ticket analytics rendering
-- ticket detail modal behavior
-- troubleshooting insight panel behavior
-- saved insight history behavior
-- API helper behavior
-
-## CI
-
-This project includes a GitHub Actions workflow that runs on pull requests and pushes to `main`.
-
-The workflow checks:
-
-- dependency installation
-- linting
-- automated frontend tests
-- production build
-
-## Deployment
-
-This frontend is deployed on Vercel.
-
-Production environment variable:
-
-```text
-VITE_API_BASE_URL=https://it-support-api-g0b4.onrender.com
-```
-
-After changing environment variables in Vercel, redeploy the project so the value is included in the production build.
-
-More details are available in:
-
-```text
-docs/deployment.md
-```
-
-## Architecture Notes
-
-The frontend is organized around a simple separation:
-
-- API files handle backend requests.
-- Components handle UI and user interaction.
-- The dashboard page connects the workflow together.
-- Styling is split by purpose so the dashboard does not depend on one oversized CSS file.
-
-The frontend does not store secrets. Troubleshooting insight generation is requested through the backend, so API keys stay out of the React app.
-
-More details are available in:
-
-```text
-docs/architecture.md
-```
-
-## Operational Notes
-
-A few practical notes from testing the app locally and in deployment:
-
-- `Reload Tickets` re-fetches the ticket queue from the backend. It does not rerun diagnostics.
-- Saved insight refresh works separately from the ticket queue.
-- Traceroute can timeout or be restricted depending on the server environment.
-- The hosted backend may return fallback diagnostic messages when system-level network commands are not available.
-- Local development uses SQLite through the backend.
-- The workflow is intended for public diagnostic targets only.
-- The saved insight delete action only removes the saved insight record. It does not delete diagnostic output or support tickets.
-
-## Problems I Ran Into
-
-A few things took more work than expected:
-
-- Browser DELETE requests failed at first because the backend CORS preflight did not allow `DELETE`.
-- Saved insights needed duplicate protection so the same diagnostic result would not keep creating repeated saved records.
-- The first ticket dashboard layout was too cramped inside the right column, so I moved it into a full-width queue section.
-- Search needed two different states: empty search input and no matching ticket results.
-- The browser `confirm()` delete popup looked unfinished, so I replaced it with a custom modal.
-- Ping and traceroute behavior was different between local development and the hosted backend, so the UI needed to handle fallback messages cleanly.
-- CSS got messy during the final UI pass, so I split the styles and cleaned the ticket dashboard rules instead of continuing to stack overrides.
-
-## What I Would Improve Next
-
-If I kept building this project, I would add:
-
-- user authentication and role-based access
-- ticket comments or internal notes
-- ticket assignment
-- pagination for long ticket queues
-- exportable diagnostic reports
-- more detailed analytics charts
-- better audit history for ticket status changes
-- a cleaner mobile layout for long ticket records
-
-I did not add these yet because the current version focuses on the core diagnostic-to-ticket workflow.
-
-## Portfolio Highlights
-
-This project shows:
-
-- full-stack API integration
-- practical support operations workflow
-- production deployment
-- stateful React UI
-- reusable components
-- backend-connected troubleshooting insight flow
-- saved history and delete workflow
-- automated frontend tests
-- CI checks
-- responsive UI work
-- real debugging around CORS, search states, and layout polish
+- Frontend: https://github.com/AC0731/it-helpdesk-frontend
+- Backend: https://github.com/AC0731/it-helpdesk-backend
 
 ## Author
 
