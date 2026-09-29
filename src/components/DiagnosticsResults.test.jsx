@@ -6,6 +6,7 @@ import DiagnosticsResults from './DiagnosticsResults'
 const mockResults = {
   target: 'google.com',
   resolved_ip: '8.8.8.8',
+  request_id: 'CASE-42',
   results: {
     ping: 'Ping OK',
     traceroute: 'Traceroute OK',
@@ -40,6 +41,7 @@ describe('DiagnosticsResults', () => {
 
     expect(screen.getByText('google.com')).toBeInTheDocument()
     expect(screen.getByText('8.8.8.8')).toBeInTheDocument()
+    expect(screen.getByText('CASE-42')).toBeInTheDocument()
     expect(screen.getByText('Port 80: Open')).toBeInTheDocument()
     expect(screen.getByText('Port 22: Closed')).toBeInTheDocument()
     expect(screen.getByText('Ping OK')).toBeInTheDocument()
