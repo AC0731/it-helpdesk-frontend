@@ -40,6 +40,11 @@ export default function DiagnosticsResults({
           <h2>
             Target: <span className="text-accent">{results.target}</span>
           </h2>
+          {results.resolved_ip ? (
+            <p className="diagnostic-address">
+              Pinned public address: <code>{results.resolved_ip}</code>
+            </p>
+          ) : null}
         </div>
 
         <div className="ticket-create-controls">
