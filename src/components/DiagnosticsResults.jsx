@@ -45,6 +45,11 @@ export default function DiagnosticsResults({
               Pinned public address: <code>{results.resolved_ip}</code>
             </p>
           ) : null}
+          {results.request_id ? (
+            <p className="diagnostic-address">
+              Request reference: <code>{results.request_id}</code>
+            </p>
+          ) : null}
         </div>
 
         <div className="ticket-create-controls">

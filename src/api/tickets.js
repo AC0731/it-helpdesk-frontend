@@ -5,6 +5,7 @@ export async function createSupportTicket({
   target,
   pingData,
   tracerouteData,
+  requestId = '',
   priority = 'medium'
 }) {
   const response = await apiClient.post('/api/ticket', {
@@ -12,6 +13,7 @@ export async function createSupportTicket({
     target,
     ping_data: pingData,
     traceroute_data: tracerouteData,
+    request_id: requestId || undefined,
     priority
   })
 

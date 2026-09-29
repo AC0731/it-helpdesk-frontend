@@ -53,6 +53,25 @@ Queue / analytics / status updates
 
 The frontend intentionally keeps network and security decisions on the backend. It never stores API/provider secrets and does not execute diagnostics directly from the browser.
 
+## End-to-end request trace
+
+A successful diagnostic now exposes both the pinned public address and a request reference. The same request reference is sent with ticket creation and stored in the ticket summary.
+
+That gives the support workflow a concrete trace:
+
+```text
+UI request
+  → backend request ID
+  → target validation / DNS pinning
+  → diagnostic result
+  → diagnostic ID + request reference
+  → support ticket summary
+```
+
+The UI also distinguishes controlled timeout, capacity and persistence failures while keeping unexpected 5xx details generic.
+
+See [`docs/failure-trace.md`](docs/failure-trace.md).
+
 ## Security and reliability behavior
 
 ### Request traceability

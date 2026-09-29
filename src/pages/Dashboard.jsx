@@ -122,6 +122,7 @@ export default function Dashboard() {
         target: results.target,
         pingData: results.results.ping,
         tracerouteData: results.results.traceroute,
+        requestId: results.request_id || '',
         priority: ticketPriority
       })
 
