@@ -51,7 +51,7 @@ Ticket creation
 Queue / analytics / status updates
 ```
 
-The frontend intentionally keeps network and security decisions on the backend. It never stores API/provider secrets and does not execute diagnostics directly from the browser.
+The frontend keeps network and security decisions on the backend. It never stores API/provider secrets and does not execute diagnostics directly from the browser.
 
 ## End-to-end request trace
 
@@ -68,7 +68,7 @@ UI request
   → support ticket summary
 ```
 
-The UI also distinguishes controlled timeout, capacity and persistence failures while keeping unexpected 5xx details generic.
+While working through the API failure states, I added separate handling for timeout, capacity, and persistence failures while keeping unexpected 5xx details generic.
 
 See [`docs/failure-trace.md`](docs/failure-trace.md).
 
@@ -92,7 +92,7 @@ The result view shows `resolved_ip`, which is the public address approved by the
 
 ## Security finding: DNS rebinding boundary
 
-A backend review found a validation-to-use gap: a domain could be validated as public and then be resolved again later by the network diagnostic function.
+While tracing a diagnostic request through the backend, I found a validation-to-use gap: a domain could be validated as public and then be resolved again later by the network diagnostic function.
 
 That creates a DNS-rebinding / TOCTOU risk for any service making outbound requests on behalf of a user.
 

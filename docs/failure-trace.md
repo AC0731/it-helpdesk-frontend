@@ -1,6 +1,6 @@
 # Full-stack request trace
 
-SupportOps carries a diagnostic request reference across the UI and backend so a support case is traceable without exposing internal exception detail.
+While troubleshooting failures across the frontend and backend, I added a diagnostic request reference so a support case can be traced without exposing internal exception detail.
 
 ## Normal path
 
@@ -24,4 +24,4 @@ The frontend does not echo arbitrary 5xx backend details.
 
 ## Limits
 
-This is application-level correlation, not distributed tracing. There is no OpenTelemetry collector or cross-service trace backend in the portfolio deployment. The request ID is intentionally simple and sufficient for the current two-service architecture.
+This is application-level correlation, not distributed tracing. There is no OpenTelemetry collector or cross-service trace backend in the portfolio deployment. The request ID is simple and sufficient for the current two-service architecture.
