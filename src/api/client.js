@@ -5,17 +5,37 @@ export const API_BASE_URL =
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 20000,
   headers: {
     'Content-Type': 'application/json'
   }
 })
 
-export function getApiErrorMessage(error) {
-  const detail = error?.response?.data?.detail
+function getRequestReference(error) {
+  const requestId = error?.response?.headers?.['x-request-id']
+  return requestId ? ` Reference: ${requestId}.` : ''
+}
 
-  if (typeof detail === 'string') {
-    return detail
+export function getApiErrorMessage(error) {
+  const status = error?.response?.status
+  const detail = error?.response?.data?.detail
+  const reference = getRequestReference(error)
+
+  if (error?.code === 'ECONNABORTED') {
+    return `The request timed out before the backend completed the operation.${reference}`
   }
 
-  return 'Failed to connect to the backend server. Please check the API connection.'
+  if (status === 429) {
+    return `${typeof detail === 'string' ? detail : 'Request limit reached. Please retry shortly.'}${reference}`
+  }
+
+  if (status >= 500) {
+    return `The backend could not complete the request. Please retry or use the request reference for troubleshooting.${reference}`
+  }
+
+  if (typeof detail === 'string') {
+    return `${detail}${reference}`
+  }
+
+  return `Failed to connect to the backend server. Please check the API connection.${reference}`
 }
